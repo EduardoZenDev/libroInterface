@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://micromysqllibro.somee.com/api/LibroMaterial';
-//const BASE_URL = 'http://localhost:5003/api/libromaterial';
+const BASE_URL = 'http://localhost:5003/api/libromaterial';
 
 
 

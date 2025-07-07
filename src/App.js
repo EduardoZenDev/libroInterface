@@ -59,6 +59,12 @@ const navigate = useNavigate();
   >
     👨‍💼 Gestión de Autores
   </button>
+  <button
+    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition duration-200"
+    onClick={() => navigate('/librosmysql')}
+  >
+    👨‍💼 Gestión de libros mysql
+  </button>
 </div>
 
 
