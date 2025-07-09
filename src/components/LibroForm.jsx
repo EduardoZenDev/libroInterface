@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { crearLibro, actualizarLibro } from '../services/libroService';
+import { obtenerAutores } from '../services/autorService';
 
 const esGuidValido = (str) => {
   const regexGuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4|5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
@@ -11,8 +12,36 @@ const LibroForm = ({ libroSeleccionado, setLibroSeleccionado, onLibroGuardado })
   const [titulo, setTitulo] = useState('');
   const [fechaPublicacion, setFechaPublicacion] = useState('');
   const [autorLibro, setAutorLibro] = useState('');
+  const [autores, setAutores] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Cargar autores al montar
+  useEffect(() => {
+    const cargarAutores = async () => {
+      try {
+        const res = await obtenerAutores();
+        setAutores(res.data);
+      } catch (error) {
+        toast.error('Error al cargar autores');
+      }
+    };
+
+    cargarAutores();
+  }, []);
+useEffect(() => {
+  const cargarAutores = async () => {
+    try {
+      const res = await obtenerAutores();
+      console.log("Autores cargados:", res.data); // <-- aquí revisas la estructura
+      setAutores(res.data);
+    } catch (error) {
+      toast.error('Error al cargar autores');
+    }
+  };
+
+  cargarAutores();
+}, []);
+  // Si hay un libro seleccionado, cargar datos
   useEffect(() => {
     if (libroSeleccionado) {
       setTitulo(libroSeleccionado.titulo);
@@ -26,51 +55,49 @@ const LibroForm = ({ libroSeleccionado, setLibroSeleccionado, onLibroGuardado })
   }, [libroSeleccionado]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // Validaciones
-  if (!titulo.trim()) return toast.error('El título es obligatorio.');
-  if (!fechaPublicacion) return toast.error('La fecha es obligatoria.');
-  if (!autorLibro.trim()) return toast.error('El ID del autor es obligatorio.');
-  if (!esGuidValido(autorLibro)) return toast.error('ID Autor no es un GUID válido.');
+    if (!titulo.trim()) return toast.error('El título es obligatorio.');
+    if (!fechaPublicacion) return toast.error('La fecha es obligatoria.');
+    if (!autorLibro.trim()) return toast.error('Debes seleccionar un autor.');
+    if (!esGuidValido(autorLibro)) return toast.error('ID Autor no es un GUID válido.');
 
-  const libro = { titulo, fechaPublicacion, autorLibro };
+    const libro = { titulo, fechaPublicacion, autorLibro };
 
- // Evita guardar si no se han hecho cambios
- if (libroSeleccionado) {
-   const sinCambios =
-     titulo === libroSeleccionado.titulo &&
-     fechaPublicacion === libroSeleccionado.fechaPublicacion.split('T')[0] &&
-     autorLibro === libroSeleccionado.autorLibro;
-
-   if (sinCambios) {
-     toast.error('No se han realizado cambios');
-     return;
-   }
- }
-
-  setLoading(true);
-  try {
+    // Evita guardar si no se han hecho cambios
     if (libroSeleccionado) {
-      await actualizarLibro(libroSeleccionado.libreriaMaterialId, libro);
-      toast.success('Libro actualizado correctamente');
-    } else {
-      await crearLibro(libro);
-      toast.success('Libro creado correctamente');
+      const sinCambios =
+        titulo === libroSeleccionado.titulo &&
+        fechaPublicacion === libroSeleccionado.fechaPublicacion.split('T')[0] &&
+        autorLibro === libroSeleccionado.autorLibro;
+
+      if (sinCambios) {
+        toast.error('No se han realizado cambios');
+        return;
+      }
     }
 
-    setLibroSeleccionado(null);
-    setTitulo('');
-    setFechaPublicacion('');
-    setAutorLibro('');
-    if (onLibroGuardado) onLibroGuardado();
-  } catch (err) {
-    toast.error('Error al guardar el libro');
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    try {
+      if (libroSeleccionado) {
+        await actualizarLibro(libroSeleccionado.libreriaMaterialId, libro);
+        toast.success('Libro actualizado correctamente');
+      } else {
+        await crearLibro(libro);
+        toast.success('Libro creado correctamente');
+      }
 
+      setLibroSeleccionado(null);
+      setTitulo('');
+      setFechaPublicacion('');
+      setAutorLibro('');
+      if (onLibroGuardado) onLibroGuardado();
+    } catch (err) {
+      toast.error('Error al guardar el libro');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <form
@@ -102,14 +129,19 @@ const LibroForm = ({ libroSeleccionado, setLibroSeleccionado, onLibroGuardado })
       </div>
 
       <div>
-        <label className="block font-medium text-gray-700">ID Autor (GUID)</label>
-        <input
-          type="text"
-          value={autorLibro}
-          onChange={(e) => setAutorLibro(e.target.value)}
-          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-          className="w-full border rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring focus:border-indigo-400"
-        />
+        <label className="block font-medium text-gray-700">Seleccionar Autor</label>
+        <select
+  value={autorLibro}
+  onChange={(e) => setAutorLibro(e.target.value)}
+  className="w-full border rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring focus:border-indigo-400"
+>
+  <option value="">Selecciona un autor</option>
+  {autores.map((autor) => (
+    <option key={autor.autorLibroGuid} value={autor.autorLibroGuid}>
+      {autor.nombre} {autor.apellido}
+    </option>
+  ))}
+</select>
       </div>
 
       <div className="flex justify-between">

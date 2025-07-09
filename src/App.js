@@ -5,36 +5,71 @@ import { getLibros } from './services/libroService';
 import { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
-const App = () => {
+const App = ({ onLogout }) => {
   const [libros, setLibros] = useState([]);
   const [libroSeleccionado, setLibroSeleccionado] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [userName, setUserName] = useState('');
+  const navigate = useNavigate();
 
   const cargarLibros = async () => {
-    const res = await getLibros();
-    setLibros(res.data);
+    try {
+      const res = await getLibros();
+      setLibros(res.data);
+    } catch (error) {
+      console.error("Error al cargar libros:", error);
+    }
   };
-const navigate = useNavigate();
 
   useEffect(() => {
     cargarLibros();
+    const storedName = localStorage.getItem('userName');
+    if (storedName) {
+      setUserName(storedName);
+    }
   }, []);
 
-  // Cuando se selecciona un libro para editar, se muestra el formulario
   const manejarEditar = (libro) => {
     setLibroSeleccionado(libro);
     setMostrarFormulario(true);
   };
 
+  const cerrarSesion = () => {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    if (onLogout) {
+      onLogout();
+    }
+    navigate('/');
+  };
+
   return (
     <>
       <Toaster position="top-right" />
+
+      {/* Nombre usuario arriba a la izquierda */}
+      {userName && (
+        <div className="absolute top-4 left-6 z-50 text-white font-semibold bg-indigo-700 px-4 py-2 rounded shadow">
+          👤 {userName}
+        </div>
+      )}
+
+      {/* Botón cerrar sesión arriba a la derecha */}
+      <div className="absolute top-4 right-6 z-50">
+        <button
+          onClick={cerrarSesion}
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition duration-200 shadow-lg"
+        >
+          🔒 Cerrar sesión
+        </button>
+      </div>
+
       <div
         className="min-h-screen flex items-center justify-center p-6 bg-no-repeat bg-center"
         style={{
           backgroundImage: "url('/fondo.jpg')",
           backgroundSize: "cover",
-          backgroundAttachment: "fixed"
+          backgroundAttachment: "fixed",
         }}
       >
         <div className="w-full max-w-5xl bg-white/50 backdrop-blur-md rounded-2xl shadow-xl p-6 space-y-6">
@@ -43,30 +78,30 @@ const navigate = useNavigate();
           </h1>
 
           <div className="text-center space-x-4">
-  <button
-    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition duration-200"
-    onClick={() => {
-      setMostrarFormulario(!mostrarFormulario);
-      setLibroSeleccionado(null); // limpia el formulario si es nuevo
-    }}
-  >
-    {mostrarFormulario ? 'Ocultar formulario' : '➕ Agregar nuevo'}
-  </button>
+            <button
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition duration-200"
+              onClick={() => {
+                setMostrarFormulario(!mostrarFormulario);
+                setLibroSeleccionado(null);
+              }}
+            >
+              {mostrarFormulario ? 'Ocultar formulario' : '➕ Agregar nuevo'}
+            </button>
 
-  <button
-    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition duration-200"
-    onClick={() => navigate('/autores')}
-  >
-    👨‍💼 Gestión de Autores
-  </button>
-  <button
-    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition duration-200"
-    onClick={() => navigate('/librosmysql')}
-  >
-    👨‍💼 Gestión de libros mysql
-  </button>
-</div>
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition duration-200"
+              onClick={() => navigate('/autores')}
+            >
+              👨‍💼 Gestión de Autores
+            </button>
 
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition duration-200"
+              onClick={() => navigate('/librosmysql')}
+            >
+              📚 Gestión de libros MySQL
+            </button>
+          </div>
 
           {mostrarFormulario && (
             <LibroForm
