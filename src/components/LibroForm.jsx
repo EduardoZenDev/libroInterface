@@ -137,7 +137,7 @@ useEffect(() => {
   >
     <option value="">Selecciona un autor</option>
     {autores.map((autor) => (
-      <option key={autor.id} value={autor.id}>
+      <option key={autor.id} value={autor.autorLibroGuid}>
         {autor.nombre}
       </option>
     ))}
