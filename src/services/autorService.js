@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'https://autoreslibros.somee.com/api/autor'; // Cambia el puerto según tu backend
+const API_BASE = 'https://tienda-microservicios-autor-api2.onrender.com/api/Autor'; // Cambia el puerto según tu backend
 //const API_BASE = 'http://localhost:5000/api/autor'; // Cambia el puerto según tu backend
 
 // Obtener todos los autores
