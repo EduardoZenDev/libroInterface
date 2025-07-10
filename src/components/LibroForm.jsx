@@ -129,14 +129,19 @@ useEffect(() => {
       </div>
 
       <div>
-  <label className="block font-medium text-gray-700">ID Autor (GUID)</label>
-  <input
-    type="text"
+  <label className="block font-medium text-gray-700">Seleccionar Autor</label>
+  <select
     value={autorLibro}
     onChange={(e) => setAutorLibro(e.target.value)}
-    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
     className="w-full border rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring focus:border-indigo-400"
-  />
+  >
+    <option value="">Selecciona un autor</option>
+    {autores.map((autor) => (
+      <option key={autor.id} value={autor.id}>
+        {autor.nombre}
+      </option>
+    ))}
+  </select>
 </div>
 
       <div className="flex justify-between">
