@@ -146,42 +146,9 @@ const manejarEditar = async (guid) => {
 
         {/* Búsquedas */}
         <div className="grid md:grid-cols-3 gap-4 mb-6">
-          <div>
-            <input
-              type="text"
-              placeholder="Buscar por GUID"
-              value={busquedaGuid}
-              onChange={(e) => setBusquedaGuid(e.target.value)}
-              className="border p-2 rounded w-full"
-              disabled={cargando}
-            />
-            <button
-              onClick={buscarPorGuid}
-              className="mt-2 w-full bg-blue-600 text-white py-1 rounded hover:bg-blue-700 disabled:opacity-50"
-              disabled={cargando}
-            >
-              Buscar GUID
-            </button>
-          </div>
+          
 
-          <div>
-            <input
-              type="text"
-              placeholder="Buscar por nombre"
-              value={busquedaNombre}
-              onChange={(e) => setBusquedaNombre(e.target.value)}
-              className="border p-2 rounded w-full"
-              disabled={cargando}
-            />
-            <button
-              onClick={buscarPorNombre}
-              className="mt-2 w-full bg-blue-600 text-white py-1 rounded hover:bg-blue-700 disabled:opacity-50"
-              disabled={cargando}
-            >
-              Buscar Nombre
-            </button>
-          </div>
-
+          
           <div className="flex items-end">
             <button
               onClick={cargarAutores}
