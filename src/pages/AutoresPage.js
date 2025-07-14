@@ -14,13 +14,12 @@ const AutoresPage = () => {
   const [autores, setAutores] = useState([]);
   const [cargando, setCargando] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
-
   const [nuevoAutor, setNuevoAutor] = useState({
     nombre: '',
     apellido: '',
     fechaNacimiento: '',
   });
-  const [editandoAutor, setEditandoAutor] = useState(null); // Aquí guardaremos solo GUID (string) o null
+  const [editandoAutor, setEditandoAutor] = useState(null); // GUID
 
   const [busquedaGuid, setBusquedaGuid] = useState('');
   const [busquedaNombre, setBusquedaNombre] = useState('');
@@ -47,27 +46,37 @@ const AutoresPage = () => {
     setNuevoAutor({ ...nuevoAutor, [e.target.name]: e.target.value });
   };
 
-  const manejarSubmit = async (e) => {
-    e.preventDefault();
-    setCargando(true);
-    try {
-      if (editandoAutor) {
-        // editandoAutor es GUID string
-        await actualizarAutor(editandoAutor, nuevoAutor);
-        toast.success('Autor actualizado');
-      } else {
-        await crearAutor(nuevoAutor);
-        toast.success('Autor creado');
-      }
-      cancelarEdicion();
-      cargarAutores();
-    } catch (error) {
-      const msg = error.response?.data?.mensaje || 'Error al guardar autor';
-      toast.error(msg);
-    } finally {
-      setCargando(false);
+ const manejarSubmit = async (e) => {
+  e.preventDefault();
+  setCargando(true);
+  try {
+    // Formateamos la fecha y preparamos el objeto para enviar
+    const autorFormateado = {
+  autorGuid: editandoAutor, // <-- Aquí agregas el GUID que se está editando
+  nombre: nuevoAutor.nombre,
+  apellido: nuevoAutor.apellido,
+  fechaNacimiento: new Date(nuevoAutor.fechaNacimiento).toISOString(),
+};
+
+    // Si estamos editando, agregamos el GUID para que el backend lo reciba y valide
+    if (editandoAutor) {
+      autorFormateado.autorLibroGuid = editandoAutor;
+      await actualizarAutor(editandoAutor, autorFormateado);
+      toast.success('Autor actualizado');
+    } else {
+      await crearAutor(autorFormateado);
+      toast.success('Autor creado');
     }
-  };
+
+    cancelarEdicion();
+    cargarAutores();
+  } catch (error) {
+    const msg = error.response?.data?.mensaje || 'Error al guardar autor';
+    toast.error(msg);
+  } finally {
+    setCargando(false);
+  }
+};
 
   const manejarEliminar = async (guid) => {
     if (!window.confirm('¿Seguro que quieres eliminar este autor?')) return;
@@ -82,25 +91,24 @@ const AutoresPage = () => {
       setCargando(false);
     }
   };
-const manejarEditar = async (guid) => {
-  setCargando(true);
-  try {
-    const res = await obtenerAutorPorGuid(guid);
-    setNuevoAutor({
-      autorLibroGuid: res.data.autorLibroGuid,
-      nombre: res.data.nombre,
-      apellido: res.data.apellido,
-      fechaNacimiento: res.data.fechaNacimiento.slice(0, 10),
-    });
-    setEditandoAutor(res.data.autorLibroGuid); // <-- Aquí solo el GUID
-    setFormVisible(true);
-  } catch {
-    toast.error('Error al cargar autor');
-  } finally {
-    setCargando(false);
-  }
-};
 
+  const manejarEditar = async (guid) => {
+    setCargando(true);
+    try {
+      const res = await obtenerAutorPorGuid(guid);
+      setNuevoAutor({
+        nombre: res.data.nombre,
+        apellido: res.data.apellido,
+        fechaNacimiento: res.data.fechaNacimiento.slice(0, 10),
+      });
+      setEditandoAutor(res.data.autorLibroGuid);
+      setFormVisible(true);
+    } catch {
+      toast.error('Error al cargar autor');
+    } finally {
+      setCargando(false);
+    }
+  };
 
   const cancelarEdicion = () => {
     setNuevoAutor({ nombre: '', apellido: '', fechaNacimiento: '' });

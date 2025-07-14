@@ -7,8 +7,8 @@ const API_BASE = 'https://librospostgresautores.somee.com/api/Autor'; // Cambia 
 export const obtenerAutores = () => axios.get(API_BASE);
 
 // Obtener autor por GUID
-export const obtenerAutorPorGuid = (guid) => axios.get(`${API_BASE}/${guid}`);
-
+export const obtenerAutorPorGuid = (guid) =>
+  axios.get(`${API_BASE}/id?id=${guid}`);
 // Obtener autor por nombre
 export const obtenerAutorPorNombre = (nombre) => axios.get(`${API_BASE}/nombre/${nombre}`);
 
