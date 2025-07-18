@@ -47,14 +47,12 @@ const App = ({ onLogout }) => {
     <>
       <Toaster position="top-right" />
 
-      {/* Nombre usuario arriba a la izquierda */}
       {userName && (
         <div className="absolute top-4 left-6 z-50 text-white font-semibold bg-indigo-700 px-4 py-2 rounded shadow">
           👤 {userName}
         </div>
       )}
 
-      {/* Botón cerrar sesión arriba a la derecha */}
       <div className="absolute top-4 right-6 z-50">
         <button
           onClick={cerrarSesion}
@@ -100,6 +98,13 @@ const App = ({ onLogout }) => {
               onClick={() => navigate('/librosmysql')}
             >
               📚 Gestión de libros MySQL
+            </button>
+
+            <button
+              className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded transition duration-200"
+              onClick={() => navigate('/vistaNueva')}
+            >
+              🔍 Vista Nueva
             </button>
           </div>
 
