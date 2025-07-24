@@ -23,22 +23,29 @@ const LoginPage = ({ onLoginSuccess }) => {
   };
 
   const login = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await axios.post("https://servicelog.onrender.com/api/login", {
-      user: form.user,
-      password: form.password
-    });
-    // Guardamos en localStorage id y nombre
-    localStorage.setItem("userId", res.data.id);
-    localStorage.setItem("userName", res.data.nombre);
+    e.preventDefault();
+    try {
+      const res = await axios.post("https://servicelog.onrender.com/api/login", {
+        user: form.user,
+        password: form.password
+      });
 
-    // Enviamos ambos a onLoginSuccess para que el padre los reciba
-    onLoginSuccess({ id: res.data.id, nombre: res.data.nombre });
-  } catch (err) {
-    setError(err.response?.data?.error || "Error de login");
-  }
-};
+      // Guardar los tokens y datos del usuario recibidos del backend
+      localStorage.setItem("accessToken", res.data.token);
+      localStorage.setItem("refreshToken", res.data.refreshToken);
+      localStorage.setItem("userId", res.data.id);
+      localStorage.setItem("userName", res.data.nombre);
+
+      onLoginSuccess({
+        id: res.data.id,
+        nombre: res.data.nombre,
+        accessToken: res.data.token,
+        refreshToken: res.data.refreshToken
+      });
+    } catch (err) {
+      setError(err.response?.data?.error || "Error de login");
+    }
+  };
 
   const register = async (e) => {
     e.preventDefault();
@@ -67,8 +74,6 @@ const LoginPage = ({ onLoginSuccess }) => {
 
   const buscarPregunta = async (e) => {
     e.preventDefault();
-    setError("");
-    setMsg("");
     try {
       const res = await axios.post("https://servicelog.onrender.com/api/getPregunta", { user: userParaReset });
       setPreguntaSecreta(res.data.pregunta);
@@ -80,8 +85,6 @@ const LoginPage = ({ onLoginSuccess }) => {
 
   const resetPassword = async (e) => {
     e.preventDefault();
-    setError("");
-    setMsg("");
     try {
       await axios.post("https://servicelog.onrender.com/api/resetPassword", {
         user: userParaReset,
@@ -103,6 +106,19 @@ const LoginPage = ({ onLoginSuccess }) => {
     } catch (err) {
       setError(err.response?.data?.error || "Error al actualizar");
     }
+  };
+
+  const limpiarFormulario = () => {
+    setForm({
+      user: "",
+      password: "",
+      nombre: "",
+      pregunta: "",
+      respuestapregunta: "",
+      nuevaPassword: ""
+    });
+    setError("");
+    setMsg("");
   };
 
   return (
@@ -148,16 +164,7 @@ const LoginPage = ({ onLoginSuccess }) => {
                 className="text-blue-600"
                 onClick={() => {
                   setStep("register");
-                  setError("");
-                  setMsg("");
-                  setForm({
-                    user: "",
-                    password: "",
-                    nombre: "",
-                    pregunta: "",
-                    respuestapregunta: "",
-                    nuevaPassword: ""
-                  });
+                  limpiarFormulario();
                 }}
               >
                 Regístrate
@@ -169,9 +176,9 @@ const LoginPage = ({ onLoginSuccess }) => {
                 className="text-blue-600"
                 onClick={() => {
                   setStep("reset");
+                  setUserParaReset("");
                   setError("");
                   setMsg("");
-                  setUserParaReset("");
                 }}
               >
                 Recupérala
@@ -179,6 +186,13 @@ const LoginPage = ({ onLoginSuccess }) => {
             </p>
           </form>
         )}
+{step === "login" && localStorage.getItem("accessToken") && (
+  <div className="mt-4 p-3 bg-gray-100 rounded text-sm break-words">
+    <h3 className="font-semibold mb-1 text-gray-700">🔐 Tokens guardados:</h3>
+    <p><strong>Access Token:</strong> {localStorage.getItem("accessToken")}</p>
+    <p className="mt-1"><strong>Refresh Token:</strong> {localStorage.getItem("refreshToken")}</p>
+  </div>
+)}
 
         {step === "register" && (
           <form onSubmit={register}>
@@ -235,16 +249,7 @@ const LoginPage = ({ onLoginSuccess }) => {
               className="text-sm text-blue-600"
               onClick={() => {
                 setStep("login");
-                setError("");
-                setMsg("");
-                setForm({
-                  user: "",
-                  password: "",
-                  nombre: "",
-                  pregunta: "",
-                  respuestapregunta: "",
-                  nuevaPassword: ""
-                });
+                limpiarFormulario();
               }}
             >
               Ya tengo cuenta
@@ -270,9 +275,9 @@ const LoginPage = ({ onLoginSuccess }) => {
               className="text-sm text-blue-600"
               onClick={() => {
                 setStep("login");
+                setUserParaReset("");
                 setError("");
                 setMsg("");
-                setUserParaReset("");
               }}
             >
               Volver al login
@@ -309,16 +314,7 @@ const LoginPage = ({ onLoginSuccess }) => {
               className="text-sm text-blue-600"
               onClick={() => {
                 setStep("login");
-                setError("");
-                setMsg("");
-                setForm({
-                  user: "",
-                  password: "",
-                  nombre: "",
-                  pregunta: "",
-                  respuestapregunta: "",
-                  nuevaPassword: ""
-                });
+                limpiarFormulario();
                 setUserParaReset("");
                 setPreguntaSecreta("");
               }}

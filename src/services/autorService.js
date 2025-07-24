@@ -1,23 +1,29 @@
 import axios from 'axios';
 
-//const API_BASE = 'https://tienda-microservicios-autor-api2.onrender.com/api/Autor'; // Cambia el puerto según tu backend
-//const API_BASE = 'http://localhost:5000/api/autor'; // Cambia el puerto según tu backend
-const API_BASE = 'https://librospostgresautores.somee.com/api/Autor'; // Cambia el puerto según tu backend
-// Obtener todos los autores
-export const obtenerAutores = () => axios.get(API_BASE);
+const API_BASE = 'https://librospostgresautores.somee.com/api/Autor';
 
-// Obtener autor por GUID
+// Función para obtener el header con el token Authorization
+const getAuthHeader = () => {
+  const token = localStorage.getItem('accessToken');
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+};
+
+export const obtenerAutores = () => axios.get(API_BASE, getAuthHeader());
+
 export const obtenerAutorPorGuid = (guid) =>
-  axios.get(`${API_BASE}/id?id=${guid}`);
-// Obtener autor por nombre
-export const obtenerAutorPorNombre = (nombre) => axios.get(`${API_BASE}/nombre/${nombre}`);
+  axios.get(`${API_BASE}/id?id=${guid}`, getAuthHeader());
 
-// Crear nuevo autor
-export const crearAutor = (autor) => axios.post(API_BASE, autor);
+export const obtenerAutorPorNombre = (nombre) =>
+  axios.get(`${API_BASE}/nombre/${nombre}`, getAuthHeader());
 
-// Actualizar autor por GUID
+export const crearAutor = (autor) => axios.post(API_BASE, autor, getAuthHeader());
+
 export const actualizarAutor = (guid, autorActualizado) =>
-axios.put(`${API_BASE}/${guid}`, autorActualizado);
+  axios.put(`${API_BASE}/${guid}`, autorActualizado, getAuthHeader());
 
-// Eliminar autor por GUID
-export const eliminarAutor = (guid) => axios.delete(`${API_BASE}/${guid}`);
+export const eliminarAutor = (guid) =>
+  axios.delete(`${API_BASE}/${guid}`, getAuthHeader());

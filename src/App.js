@@ -10,6 +10,7 @@ const App = ({ onLogout }) => {
   const [libroSeleccionado, setLibroSeleccionado] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [userName, setUserName] = useState('');
+  const [token, setToken] = useState(''); // <-- Estado para el token
   const navigate = useNavigate();
 
   const cargarLibros = async () => {
@@ -22,12 +23,19 @@ const App = ({ onLogout }) => {
   };
 
   useEffect(() => {
+    const tokenStorage = localStorage.getItem('accessToken');
+    if (!tokenStorage) {
+      navigate('/login');
+      return;
+    }
+    setToken(tokenStorage); // <-- Guardamos el token en el estado para mostrarlo
     cargarLibros();
+
     const storedName = localStorage.getItem('userName');
     if (storedName) {
       setUserName(storedName);
     }
-  }, []);
+  }, [navigate]);
 
   const manejarEditar = (libro) => {
     setLibroSeleccionado(libro);
@@ -37,6 +45,7 @@ const App = ({ onLogout }) => {
   const cerrarSesion = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
+    localStorage.removeItem('accessToken'); // también borrar token al cerrar sesión
     if (onLogout) {
       onLogout();
     }
@@ -52,6 +61,17 @@ const App = ({ onLogout }) => {
           👤 {userName}
         </div>
       )}
+
+      {/* Mostrar token aquí */}
+      {token && (
+  <div
+    className="absolute top-16 left-6 z-50 text-sm text-white bg-gray-800 px-4 py-2 rounded shadow max-w-3xl whitespace-pre-wrap break-all"
+    style={{ maxWidth: '600px', wordBreak: 'break-word' }}
+  >
+    🔑 Token: {token}
+  </div>
+)}
+
 
       <div className="absolute top-4 right-6 z-50">
         <button
