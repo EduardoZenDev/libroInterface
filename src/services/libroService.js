@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://micromysqllibro.somee.com/api/LibroMaterial';
+const BASE_URL = 'http://localhost:8000/api/LibroMaterial';
 
 // Función para obtener el header con el token Authorization
 const getAuthHeader = () => {

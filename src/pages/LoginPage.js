@@ -47,30 +47,32 @@ const LoginPage = ({ onLoginSuccess }) => {
     }
   };
 
-  const register = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post("https://servicelog.onrender.com/api/users", {
-        nombre: form.nombre,
-        user: form.user,
-        password: form.password,
-        pregunta: form.pregunta,
-        respuestapregunta: form.respuestapregunta
-      });
-      setMsg("✅ Usuario registrado con éxito");
-      setStep("login");
-      setForm({
-        user: "",
-        password: "",
-        nombre: "",
-        pregunta: "",
-        respuestapregunta: "",
-        nuevaPassword: ""
-      });
-    } catch (err) {
-      setError(err.response?.data?.error || "Error al registrar");
-    }
-  };
+ const register = async (e) => {
+  e.preventDefault();
+  try {
+    await axios.post("https://servicelog.onrender.com/api/register", {
+      nombre: form.nombre,
+      user: form.user,
+      password: form.password,
+      pregunta: form.pregunta,
+      respuestapregunta: form.respuestapregunta
+    });
+    setMsg("✅ Usuario registrado con éxito");
+    setStep("login");
+    setForm({
+      user: "",
+      password: "",
+      nombre: "",
+      pregunta: "",
+      respuestapregunta: "",
+      nuevaPassword: ""
+    });
+  } catch (err) {
+    setError(err.response?.data?.error || "Error al registrar");
+    console.log(err)
+  }
+};
+
 
   const buscarPregunta = async (e) => {
     e.preventDefault();
